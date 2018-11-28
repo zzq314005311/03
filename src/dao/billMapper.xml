@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="dao.billMapper">
+
+	<select id="selectAll" resultType="Bill">
+		SELECT b.*,p.proName FROM smbms_bill b,smbms_provider p WHERE
+		b.providerId=p.id
+		<if test="productName !=null and productName!=''">
+			and productName like
+			CONCAT('%',#{productName},'%')
+		</if>
+		<if test="providerId !=null">
+			and providerId=#{providerId}
+		</if>
+		<if test="isPayment !=null">
+			and isPayment=#{isPayment}
+		</if>
+	</select>
+	<update id="update" parameterType="Bill">
+		update smbms_bill
+		<set>
+			<if test="billCode !=null">billCode=#{billCode},</if>
+			<if test="productName !=null">productName=#{productName},</if>
+			<if test="productDesc !=null"> productDesc=#{productDesc},</if>
+			<if test="productUnit !=null"> productUnit=#{productUnit},</if>
+			<if test="productCount !=null">productCount=#{productCount},</if>
+			<if test="totalPrice !=null">totalPrice=#{totalPrice},</if>
+			<if test="isPayment !=null">isPayment=#{isPayment},</if>
+			<if test="createdBy !=null">createdBy=#{createdBy},</if>
+			<if test="creationDate !=null">creationDate=#{creationDate},</if>
+			<if test="modifyBy !=null">modifyBy=#{modifyBy},</if>
+			<if test="modifyDate !=null">modifyDate=#{modifyDate},</if>
+			<if test="providerId !=null"> providerId=#{providerId},</if>
+		</set>
+		where id=#{id}
+	</update>
+	<update id="update1" parameterType="Bill">
+		update smbms_bill
+		<trim prefix="set" suffixOverrides="," suffix=" where id=#{id}">
+			<if test="billCode !=null">billCode=#{billCode},</if>
+			<if test="productName !=null">productName=#{productName},</if>
+			<if test="productDesc !=null"> productDesc=#{productDesc},</if>
+			<if test="productUnit !=null"> productUnit=#{productUnit},</if>
+			<if test="productCount !=null">productCount=#{productCount},</if>
+			<if test="totalPrice !=null">totalPrice=#{totalPrice},</if>
+			<if test="isPayment !=null">isPayment=#{isPayment},</if>
+			<if test="createdBy !=null">createdBy=#{createdBy},</if>
+			<if test="creationDate !=null">creationDate=#{creationDate},</if>
+			<if test="modifyBy !=null">modifyBy=#{modifyBy},</if>
+			<if test="modifyDate !=null">modifyDate=#{modifyDate},</if>
+			<if test="providerId !=null"> providerId=#{providerId},</if>
+		</trim>
+	</update>
+	<resultMap type="Bill" id="Bill">
+		<id property="id" column="id" />
+		<result property="billCode" column="billCode"></result>
+		<result property="productName" column="productName"></result>
+		<result property="isPayment" column="isPayment"></result>
+		<result property="totalPrice" column="totalPrice"></result>
+		<association property="provider" javaType="provider">
+			<id property="id" column="aid" />
+			<result property="proCode" column="proCode" />
+			<result property="proName" column="proName" />
+			<result property="proPhone" column="proPhone" />
+			<result property="proContact" column="proContact" />
+		</association>
+	</resultMap>
+	<select id="select" resultMap="Bill">
+		SELECT * FROM
+		smbms_bill
+		WHERE
+		smbms_bill.billCode LIKE 
+		CONCAT('%',#{billCode},'%')
+		 AND smbms_bill.providerId IN
+		<foreach collection="billmap" item="remap" open="(" separator=","
+			close=")">
+			#{remap}
+		</foreach>
+	</select>
+</mapper>

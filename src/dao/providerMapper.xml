@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="dao.providerMapper">
+
+	<select id="select1" resultType="provider">
+		select * from smbms_provider
+		<where>
+			<if test="proCode !=null and proCode != ''">
+				and proCode like CONCAT('%',#{proCode},'%')
+			</if>
+			<if test="proName !=null and proName !=''">
+				and proName like CONCAT('%',#{proName},'%')
+			</if>
+		</where>
+
+	</select>
+	<resultMap type="provider" id="provider">
+		<id property="aid" column="aid"></id>
+		<result property="proCode" column="proCode" />
+		<result property="proName" column="proName" />
+		<result property="proPhone" column="proPhone" />
+		<result property="proContact" column="proContact" />
+		<collection property="bills" ofType="Bill">
+			<id property="id" column="id" />
+			<result property="billCode" column="billCode"></result>
+			<result property="productName" column="productName"></result>
+			<result property="isPayment" column="isPayment"></result>
+			<result property="totalPrice" column="totalPrice"></result>
+		</collection>
+	</resultMap>
+	<select id="select2" resultMap="provider">
+		SELECT * FROM smbms_provider,smbms_bill WHERE
+		smbms_provider.id=smbms_bill.providerId AND smbms_provider.id IN
+		<foreach collection="array" open="(" close=")" separator=","
+			item="bills">
+			#{bills}
+		</foreach>
+	</select>
+	<select id="ifselect" resultType="provider">
+		SELECT * FROM smbms_provider where 1=1
+		<choose>
+			<when test="proCode !=null and proCode !=''">
+				and proCode like CONCAT('%',#{proCode},'%')
+			</when>
+			<when test="proName !=null and proName !=''">
+				and proName like CONCAT('%',#{proName},'%')
+			</when>
+			<when test="proContact !=null and proContact !=''">
+				and proContact like CONCAT('%',#{proContact},'%')
+			</when>
+			<otherwise> and YEAR(creationDate)=YEAR(new())</otherwise>
+		</choose>
+	</select>
+	<select id="count" resultType="int">
+		select SELECT COUNT(1) FROM
+		smbms_provider
+	</select>
+	<select id="fenye" resultType="provider">
+		select * from smbms_provider order by creationDate limit #{from},#{pageSize}
+	</select>
+</mapper>
